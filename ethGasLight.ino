@@ -1,6 +1,5 @@
 #include <stdio.h>
 #include <math.h>
-#include <ArduinoJson.h>
 
 
 // This #include statement was automatically added by the Particle IDE.
@@ -24,12 +23,64 @@ int tinkerDigitalRead(String pin);
 int tinkerDigitalWrite(String command);
 int tinkerAnalogRead(String pin);
 int tinkerAnalogWrite(String command);
-DynamicJsonDocument doc(1024);
 
 void myHandler(const char *event, const char *data) {
   // Handle the webhook response
     Particle.publish("Resp", data, 60, PRIVATE);
-    Particle.publish("R event", String(event), 60, PRIVATE);
+    // Particle.publish("R event", String(event), 60, PRIVATE);
+
+    
+    // char hex[30] = data;
+
+    Particle.publish("result", data, 60, PRIVATE);
+
+    char *hex = "0x107ee13223";
+    // strcpy(hex, data);
+
+    // hex = "0x107ee13223";
+
+    unsigned long decimalNum = 0, base = 1;
+    int i = 0, length;
+    char *hexx = hex+1; // removes first character
+    Particle.publish("hexx", hexx, 60, PRIVATE);
+
+    length = strlen(hexx);
+    for(i = length--; i >= 0; i--)
+    {
+        if(hexx[i] >= '0' && hexx[i] <= '9')
+        {
+            decimalNum += (hexx[i] - 48) * base;
+            base *= 16;
+        }
+        else if(hexx[i] >= 'A' && hexx[i] <= 'F')
+        {
+            decimalNum += (hexx[i] - 55) * base;
+            base *= 16;
+        }
+        else if(hexx[i] >= 'a' && hexx[i] <= 'f')
+        {
+            decimalNum += (hexx[i] - 87) * base;
+            base *= 16;
+        }
+    }
+    // char decimalStr[30];
+    // sprintf(decimalStr, "%ld", decimalNum);
+    // Particle.publish("Decimal Num", decimalNum, 60, PRIVATE);
+    Particle.publish("Decimal Hex Number", String::format("%ld", decimalNum));
+
+
+    // Particle.publish("Decimal Str", String(decimalStr), 60, PRIVATE);
+
+    if(decimalNum<102278815599){
+        redLightOn("1");
+    } else if (decimalNum<80278815599) {
+        yellowLightOn("1");
+    } else if (decimalNum<75848164387) {
+        greenLightOn("1");
+    }
+
+    // printf("\nHexadecimal number = %s", hex);
+    // printf("Decimal number = %ld\n", decimalNum);
 
 }
 
@@ -73,54 +124,7 @@ void loop()
 
     Particle.publish("get-eth-gas-price", data, PRIVATE);
 
-
-
-    // char json[] = "asdlfj";
-    // deserializeJson(doc, response.body);
-    
-
-    // char hex[30] = doc["result"];
-
-
-    char hex[30] = "0x21d182cb63";
-    unsigned long decimalNum = 0, base = 1;
-    int i = 0, length;
-    char *hexx = hex+2; // removes first character
-
-    length = strlen(hexx);
-    for(i = length--; i >= 0; i--)
-    {
-        if(hexx[i] >= '0' && hexx[i] <= '9')
-        {
-            decimalNum += (hexx[i] - 48) * base;
-            base *= 16;
-        }
-        else if(hexx[i] >= 'A' && hexx[i] <= 'F')
-        {
-            decimalNum += (hex[i] - 55) * base;
-            base *= 16;
-        }
-        else if(hexx[i] >= 'a' && hexx[i] <= 'f')
-        {
-            decimalNum += (hexx[i] - 87) * base;
-            base *= 16;
-        }
-    }
-    char decimalStr[30];
-    sprintf(decimalStr, "%ld", decimalNum);
-    // Particle.publish("Decimal Str", String(decimalStr), 60, PRIVATE);
-
-    if(decimalNum<102278815599){
-
-    } else if (decimalNum<102278815599) {
-
-    } else if (decimalNum<70848164387) {
-
-    }
-
-    // printf("\nHexadecimal number = %s", hex);
-    // printf("Decimal number = %ld\n", decimalNum);
-    nextTime = millis() + 30*1000;
+    nextTime = millis() + 60*1000;
 
     //This will run in a loop
 }
