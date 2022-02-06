@@ -26,9 +26,19 @@ int tinkerAnalogRead(String pin);
 int tinkerAnalogWrite(String command);
 DynamicJsonDocument doc(1024);
 
+void myHandler(const char *event, const char *data) {
+  // Handle the webhook response
+    Particle.publish("R event", String(event), 60, PRIVATE);
+
+
+
+}
+
 /* This function is called once at start up ----------------------------------*/
 void setup()
 {
+    Particle.subscribe("hook-response/get-eth-gas-price", myHandler,MY_DEVICES);
+    Particle.publish("setup", "SETUPa", 60, PRIVATE);
 
 
 	//Setup the Tinker application here
@@ -45,41 +55,29 @@ void setup()
 	Particle.function("yellowLightOn",yellowLightOn);
 	Particle.function("redLightOn",redLightOn);
 	Particle.function("greenLightOn",greenLightOn);
-    
-    Particle.publish("setup", "SETUPa", 60, PRIVATE);
-
-    Particle.subscribe("hook-response/GetEthGasPrice", myHandler);
-
-
 }
 
-void myHandler(const char *event, const char *data) {
-  // Handle the webhook response
-    Particle.publish("Resp", data, 60, PRIVATE);
-    Particle.publish("R event", String(event), 60, PRIVATE);
 
-}
 
 
 
 /* This function loops forever --------------------------------------------*/
 void loop()
 {
+    String data = String(10);
+    // Particle.publish("GetEthGasPrice", data, PRIVATE);
+
     if (nextTime > millis()) {
         return;
     }
-    String data = String(10);
 
-    Particle.publish("GetEthGasPrice", data, PRIVATE);
-
-
+    Particle.publish("get-eth-gas-price", data, PRIVATE);
 
     // char json[] = "asdlfj";
     // deserializeJson(doc, response.body);
     
 
     // char hex[30] = doc["result"];
-
 
     char hex[30] = "0x21d182cb63";
     unsigned long decimalNum = 0, base = 1;
@@ -119,7 +117,7 @@ void loop()
 
     // printf("\nHexadecimal number = %s", hex);
     // printf("Decimal number = %ld\n", decimalNum);
-    nextTime = millis() + 100000;
+    nextTime = millis() + 30*1000;
 
     //This will run in a loop
 }
