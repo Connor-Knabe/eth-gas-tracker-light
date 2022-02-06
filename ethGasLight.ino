@@ -28,9 +28,8 @@ DynamicJsonDocument doc(1024);
 
 void myHandler(const char *event, const char *data) {
   // Handle the webhook response
+    Particle.publish("Resp", data, 60, PRIVATE);
     Particle.publish("R event", String(event), 60, PRIVATE);
-
-
 
 }
 
@@ -55,9 +54,9 @@ void setup()
 	Particle.function("yellowLightOn",yellowLightOn);
 	Particle.function("redLightOn",redLightOn);
 	Particle.function("greenLightOn",greenLightOn);
+    
+
 }
-
-
 
 
 
@@ -65,6 +64,7 @@ void setup()
 void loop()
 {
     String data = String(10);
+
     // Particle.publish("GetEthGasPrice", data, PRIVATE);
 
     if (nextTime > millis()) {
@@ -73,11 +73,14 @@ void loop()
 
     Particle.publish("get-eth-gas-price", data, PRIVATE);
 
+
+
     // char json[] = "asdlfj";
     // deserializeJson(doc, response.body);
     
 
     // char hex[30] = doc["result"];
+
 
     char hex[30] = "0x21d182cb63";
     unsigned long decimalNum = 0, base = 1;
