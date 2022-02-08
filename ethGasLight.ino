@@ -27,24 +27,19 @@ int tinkerAnalogWrite(String command);
 void myHandler(const char *event, const char *data) {
   // Handle the webhook response
     Particle.publish("Resp", data, 60, PRIVATE);
-    // Particle.publish("R event", String(event), 60, PRIVATE);
-
     
-    // char hex[30] = data;
-
+    char hex[30];
     Particle.publish("result", data, 60, PRIVATE);
+    // char *hex = "0x107ee13223";
+    strcpy(hex, data);
 
-    char *hex = "0x107ee13223";
-    // strcpy(hex, data);
-
-    // hex = "0x107ee13223";
-
-    unsigned long decimalNum = 0, base = 1;
+    double decimalNum = 0, base = 1;
     int i = 0, length;
-    char *hexx = hex+1; // removes first character
+    char *hexx = hex+2; // removes first character
     Particle.publish("hexx", hexx, 60, PRIVATE);
 
     length = strlen(hexx);
+
     for(i = length--; i >= 0; i--)
     {
         if(hexx[i] >= '0' && hexx[i] <= '9')
@@ -63,25 +58,19 @@ void myHandler(const char *event, const char *data) {
             base *= 16;
         }
     }
-    // char decimalStr[30];
-    // sprintf(decimalStr, "%ld", decimalNum);
-    // Particle.publish("Decimal Num", decimalNum, 60, PRIVATE);
-    Particle.publish("Decimal Hex Number", String::format("%ld", decimalNum));
+    char decimalStr[30];
+    decimalNum = decimalNum/1000000000;
+    sprintf(decimalStr, "%f", decimalNum);
 
+    Particle.publish("Decimal Str", String(decimalStr), 60, PRIVATE);
 
-    // Particle.publish("Decimal Str", String(decimalStr), 60, PRIVATE);
-
-    if(decimalNum<102278815599){
+    if(decimalNum>120){
         redLightOn("1");
-    } else if (decimalNum<80278815599) {
+    } else if (decimalNum>70) {
         yellowLightOn("1");
-    } else if (decimalNum<75848164387) {
+    } else if (decimalNum>0) {
         greenLightOn("1");
     }
-
-    // printf("\nHexadecimal number = %s", hex);
-    // printf("Decimal number = %ld\n", decimalNum);
-
 }
 
 /* This function is called once at start up ----------------------------------*/
