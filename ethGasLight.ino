@@ -1,16 +1,13 @@
 #include <stdio.h>
 #include <math.h>
 
+const pin_t yellowLED = A0;
+const pin_t redLED = A1;
+const pin_t greenLED = A2;
 
-// This #include statement was automatically added by the Particle IDE.
-int yellowLED = A0;
-int redLED = A1;
-int greenLED = A2;
 int i = 0, val, len;
 // long long decimalNum;
 unsigned int nextTime = 0;    
-
-
 
 /* Tinker
  * This is a simple application to read and toggle pins on a Particle device.
@@ -23,6 +20,9 @@ int tinkerDigitalRead(String pin);
 int tinkerDigitalWrite(String command);
 int tinkerAnalogRead(String pin);
 int tinkerAnalogWrite(String command);
+int redLightOn();
+int yellowLightOn();
+int greenLightOn();
 
 void myHandler(const char *event, const char *data) {
   // Handle the webhook response
@@ -62,13 +62,13 @@ void myHandler(const char *event, const char *data) {
 
     if(gasPrice>120){
         Particle.publish("Turn Red On", String(gasPriceStr), 60, PRIVATE);
-        redLightOn("1");
+        redLightOn();
     } else if (gasPrice>70) {
         Particle.publish("Turn Yellow On", String(gasPriceStr), 60, PRIVATE);
-        yellowLightOn("1");
+        yellowLightOn();
     } else if (gasPrice>0) {
         Particle.publish("Turn Green On", String(gasPriceStr), 60, PRIVATE);
-        greenLightOn("1");
+        greenLightOn();
     } else {
         Particle.publish("None", String(gasPriceStr), 60, PRIVATE);
     }
@@ -79,8 +79,6 @@ void myHandler(const char *event, const char *data) {
 void setup()
 {
     Particle.subscribe("hook-response/get-eth-gas-price", myHandler,MY_DEVICES);
-    Particle.publish("setup", "SETUPa", 60, PRIVATE);
-
 
 	//Setup the Tinker application here
 
@@ -90,14 +88,13 @@ void setup()
 	Particle.function("analogread", tinkerAnalogRead);
 	Particle.function("analogwrite", tinkerAnalogWrite);
 	
+   	pinMode(greenLED, OUTPUT);
+	pinMode(redLED, OUTPUT);
+	pinMode(yellowLED, OUTPUT);
+
     digitalWrite(yellowLED, HIGH);  
     digitalWrite(greenLED, HIGH);  
     digitalWrite(redLED, HIGH); 
-	Particle.function("yellowLightOn",yellowLightOn);
-	Particle.function("redLightOn",redLightOn);
-	Particle.function("greenLightOn",greenLightOn);
-    
-
 }
 
 
@@ -105,52 +102,42 @@ void setup()
 /* This function loops forever --------------------------------------------*/
 void loop()
 {
-    String data = String(10);
-
-    // Particle.publish("GetEthGasPrice", data, PRIVATE);
-
     if (nextTime > millis()) {
         return;
     }
-
-    Particle.publish("get-eth-gas-price", data, PRIVATE);
-
+    Particle.publish("get-eth-gas-price", PRIVATE);
     nextTime = millis() + 60*1000;
 
-    //This will run in a loop
 }
 
 
-int yellowLightOn(String command){
-    Particle.publish("YellowLightOn", "", PRIVATE);
-
+int yellowLightOn(){
+    // Particle.publish("YellowLightOn", "", PRIVATE);
     digitalWrite(yellowLED, LOW);  
-    delay(500);
+    delay(1000);
     digitalWrite(greenLED, HIGH); 
-    delay(500);
+    delay(1000);
     digitalWrite(redLED, HIGH);  
     return 1;
 }
 
-int redLightOn(String command){
-    Particle.publish("RedLightOn", "", PRIVATE);
-
+int redLightOn(){
+    // Particle.publish("RedLightOn", "", PRIVATE);
     digitalWrite(yellowLED, HIGH);  
-    delay(500);
+    delay(1000);
     digitalWrite(greenLED, HIGH); 
-    delay(500);
+    delay(1000);
     digitalWrite(redLED, LOW);  
     return 1;
 }
 
 
-int greenLightOn(String command){
-    Particle.publish("GreenLightOn", "", PRIVATE);
-
+int greenLightOn(){
+    // Particle.publish("GreenLightOn", "", PRIVATE);
     digitalWrite(yellowLED, HIGH);  
-    delay(500);
+    delay(1000);
     digitalWrite(greenLED, LOW);  
-    delay(500);
+    delay(1000);
     digitalWrite(redLED, HIGH);  
     return 1;
 }
