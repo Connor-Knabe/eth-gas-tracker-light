@@ -26,17 +26,17 @@ int tinkerAnalogWrite(String command);
 
 void myHandler(const char *event, const char *data) {
   // Handle the webhook response
-    Particle.publish("Resp", data, 60, PRIVATE);
+    // Particle.publish("Resp", data, 60, PRIVATE);
     
     char hex[30];
-    Particle.publish("result", data, 60, PRIVATE);
+    // Particle.publish("result", data, 60, PRIVATE);
     // char *hex = "0x107ee13223";
     strcpy(hex, data);
 
     double decimalNum = 0, base = 1;
     int i = 0, length;
     char *hexx = hex+2; // removes first character
-    Particle.publish("hexx", hexx, 60, PRIVATE);
+    // Particle.publish("hexx", hexx, 60, PRIVATE);
 
     length = strlen(hexx);
 
@@ -58,19 +58,27 @@ void myHandler(const char *event, const char *data) {
             base *= 16;
         }
     }
-    char decimalStr[30];
+    char gasPriceStr[30];
     decimalNum = decimalNum/1000000000;
-    sprintf(decimalStr, "%f", decimalNum);
+    int gasPrice = (int) decimalNum;
+    sprintf(gasPriceStr, "%d", gasPrice);
 
-    Particle.publish("Decimal Str", String(decimalStr), 60, PRIVATE);
+    // Particle.publish("Gas Str", String(gasPriceStr), 60, PRIVATE);
 
-    if(decimalNum>120){
+    if(gasPrice>120){
+        Particle.publish("Turn Red On", String(gasPriceStr), 60, PRIVATE);
         redLightOn("1");
-    } else if (decimalNum>70) {
+    } else if (gasPrice>70) {
+        Particle.publish("Turn Yellow On", String(gasPriceStr), 60, PRIVATE);
         yellowLightOn("1");
-    } else if (decimalNum>0) {
+    } else if (gasPrice>0) {
+        Particle.publish("Turn Green On", String(gasPriceStr), 60, PRIVATE);
         greenLightOn("1");
+    } else {
+        Particle.publish("None", String(gasPriceStr), 60, PRIVATE);
     }
+    // Particle.publish("Gas String", String(gasPriceStr), 60, PRIVATE);
+
 }
 
 /* This function is called once at start up ----------------------------------*/
@@ -120,24 +128,35 @@ void loop()
 
 
 int yellowLightOn(String command){
+    Particle.publish("YellowLightOn", "", PRIVATE);
+
     digitalWrite(yellowLED, LOW);  
-    digitalWrite(greenLED, HIGH);  
+    delay(500);
+    digitalWrite(greenLED, HIGH); 
+    delay(500);
     digitalWrite(redLED, HIGH);  
     return 1;
 }
 
 int redLightOn(String command){
+    Particle.publish("RedLightOn", "", PRIVATE);
+
     digitalWrite(yellowLED, HIGH);  
-    digitalWrite(greenLED, HIGH);  
+    delay(500);
+    digitalWrite(greenLED, HIGH); 
+    delay(500);
     digitalWrite(redLED, LOW);  
     return 1;
 }
 
 
 int greenLightOn(String command){
+    Particle.publish("GreenLightOn", "", PRIVATE);
+
     digitalWrite(yellowLED, HIGH);  
     delay(500);
     digitalWrite(greenLED, LOW);  
+    delay(500);
     digitalWrite(redLED, HIGH);  
     return 1;
 }
