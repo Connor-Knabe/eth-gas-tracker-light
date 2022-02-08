@@ -60,10 +60,10 @@ void myHandler(const char *event, const char *data) {
     sprintf(gasPriceStr, "%d", gasPrice);
 
 
-    if(gasPrice>120){
+    if(gasPrice>200){
         Particle.publish("Turn Red On", String(gasPriceStr), 60, PRIVATE);
         redLightOn();
-    } else if (gasPrice>70) {
+    } else if (gasPrice>65) {
         Particle.publish("Turn Yellow On", String(gasPriceStr), 60, PRIVATE);
         yellowLightOn();
     } else if (gasPrice>0) {
@@ -106,7 +106,7 @@ void loop()
         return;
     }
     Particle.publish("get-eth-gas-price", PRIVATE);
-    nextTime = millis() + 60*1000;
+    nextTime = millis() + 5*60*1000;
 
 }
 
