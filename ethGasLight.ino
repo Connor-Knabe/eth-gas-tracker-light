@@ -26,17 +26,13 @@ int tinkerAnalogWrite(String command);
 
 void myHandler(const char *event, const char *data) {
   // Handle the webhook response
-    // Particle.publish("Resp", data, 60, PRIVATE);
     
     char hex[30];
-    // Particle.publish("result", data, 60, PRIVATE);
-    // char *hex = "0x107ee13223";
     strcpy(hex, data);
 
     double decimalNum = 0, base = 1;
     int i = 0, length;
     char *hexx = hex+2; // removes first character
-    // Particle.publish("hexx", hexx, 60, PRIVATE);
 
     length = strlen(hexx);
 
@@ -63,7 +59,6 @@ void myHandler(const char *event, const char *data) {
     int gasPrice = (int) decimalNum;
     sprintf(gasPriceStr, "%d", gasPrice);
 
-    // Particle.publish("Gas Str", String(gasPriceStr), 60, PRIVATE);
 
     if(gasPrice>120){
         Particle.publish("Turn Red On", String(gasPriceStr), 60, PRIVATE);
@@ -77,7 +72,6 @@ void myHandler(const char *event, const char *data) {
     } else {
         Particle.publish("None", String(gasPriceStr), 60, PRIVATE);
     }
-    // Particle.publish("Gas String", String(gasPriceStr), 60, PRIVATE);
 
 }
 
