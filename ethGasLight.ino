@@ -9,11 +9,13 @@ int i = 0, val, len;
 // long long decimalNum;
 unsigned int nextTime = 0;   
 unsigned int nextTimeNotify = 0;   
-unsigned int nextTimeFlash = 0;
+unsigned int nextTimeNotifyRed = 0;   
+unsigned int nextTimeFlashGreen = 0;
+unsigned int nextTimeFlashRed = 0;
 
 int MINS_TILL_CHECK = 10;
 int MINS_TILL_NOTIFY = 60;
-int MINS_TILL_FLASH = 15;
+int MINS_TILL_FLASH = 22;
 
 
 int RED_FLASH = 350;
@@ -70,24 +72,29 @@ void myHandler(const char *event, const char *data) {
     sprintf(gasPriceStr, "%d", gasPrice);
 
     if(gasPrice>RED_FLASH){
-		nextTimeFlash = millis() + MINS_TILL_FLASH*60*1000;
         redLightOnFlash();
+		notifyRed(gasPriceStr);
     } else if (gasPrice>RED) {
-		nextTimeFlash = millis() + MINS_TILL_FLASH*60*1000;
         redLightOn();
     } else if (gasPrice>YELLOW) {
-		nextTimeFlash = millis() + MINS_TILL_FLASH*60*1000;
         yellowLightOn();
     } else if (gasPrice>GREEN) {
-		nextTimeFlash = millis() + MINS_TILL_FLASH*60*1000;
         greenLightOn();
 		notifyGreen(gasPriceStr);
 	} else if (gasPrice>GREEN_FLASH) {
-        greenLightOn();
 		shouldFlashGreenLight();
 		notifyGreen(gasPriceStr);
     }
 
+}
+
+
+void notifyRed(char* gasPriceStr){
+	if (nextTimeNotifyRed < millis()) {
+		Particle.publish("TurnRedOn", String(gasPriceStr), 60, PRIVATE);
+		nextTimeNotifyRed = millis() + MINS_TILL_NOTIFY*60*1000;
+	} 
+	return; 
 }
 
 void notifyGreen(char* gasPriceStr){
@@ -98,10 +105,20 @@ void notifyGreen(char* gasPriceStr){
 	return; 
 }
 
+void shouldFlashRedLight(){
+	redLightOnTwo();
+	if (nextTimeFlashRed < millis()) {
+		redLightOnFlash();
+		nextTimeFlashRed = 0;
+	}
+	return;
+}
+
 void shouldFlashGreenLight(){
-	if (nextTimeFlash < millis()) {
+	greenLightOnTwo();
+	if (nextTimeFlashGreen < millis()) {
 		greenLightOnFlash();
-		nextTimeFlash = 0;
+		nextTimeFlashGreen = 0;
 	}
 	return;
 }
@@ -136,6 +153,8 @@ void loop()
 }
 
 int yellowLightOn(){
+	nextTimeFlashGreen = millis() + MINS_TILL_FLASH*60*1000;
+	nextTimeFlashRed = millis() + MINS_TILL_FLASH*60*1000;
     digitalWrite(yellowLED, LOW);  
     delay(1000);
     digitalWrite(greenLED, HIGH); 
@@ -145,6 +164,17 @@ int yellowLightOn(){
 }
 
 int redLightOn(){
+	nextTimeFlashGreen = millis() + MINS_TILL_FLASH*60*1000;
+	nextTimeFlashRed = millis() + MINS_TILL_FLASH*60*1000;
+    digitalWrite(yellowLED, HIGH);  
+    delay(1000);
+    digitalWrite(greenLED, HIGH); 
+    delay(1000);
+    digitalWrite(redLED, LOW);  
+    return 1;
+}
+
+int redLightOnTwo(){
     digitalWrite(yellowLED, HIGH);  
     delay(1000);
     digitalWrite(greenLED, HIGH); 
@@ -184,6 +214,17 @@ int redLightOnFlash(){
 }
 
 int greenLightOn(){
+	nextTimeFlashGreen = millis() + MINS_TILL_FLASH*60*1000;
+	nextTimeFlashRed = millis() + MINS_TILL_FLASH*60*1000;
+    digitalWrite(yellowLED, HIGH);  
+    delay(1000);
+    digitalWrite(greenLED, LOW);  
+    delay(1000);
+    digitalWrite(redLED, HIGH);  
+    return 1;
+}
+
+int greenLightOnTwo(){
     digitalWrite(yellowLED, HIGH);  
     delay(1000);
     digitalWrite(greenLED, LOW);  
