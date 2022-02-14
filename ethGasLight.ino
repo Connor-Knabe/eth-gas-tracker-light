@@ -7,7 +7,21 @@ const pin_t greenLED = A2;
 
 int i = 0, val, len;
 // long long decimalNum;
-unsigned int nextTime = 0;    
+unsigned int nextTime = 0;   
+unsigned int nextTimeNotify = 0;   
+unsigned int nextTimeFlash = 0;
+
+int MINS_TILL_CHECK = 10;
+int MINS_TILL_NOTIFY = 60;
+int MINS_TILL_FLASH = 15;
+
+
+int RED_FLASH = 350;
+int RED = 100;
+int YELLOW = 60;
+int GREEN = 30;
+int GREEN_FLASH = 0;
+
 
 /* Tinker
  * This is a simple application to read and toggle pins on a Particle device.
@@ -26,16 +40,12 @@ int greenLightOn();
 
 void myHandler(const char *event, const char *data) {
   // Handle the webhook response
-    
     char hex[30];
     strcpy(hex, data);
-
     double decimalNum = 0, base = 1;
     int i = 0, length;
-    char *hexx = hex+2; // removes first character
-
+    char *hexx = hex+2; // removes first 2 characters
     length = strlen(hexx);
-
     for(i = length--; i >= 0; i--)
     {
         if(hexx[i] >= '0' && hexx[i] <= '9')
@@ -59,29 +69,47 @@ void myHandler(const char *event, const char *data) {
     int gasPrice = (int) decimalNum;
     sprintf(gasPriceStr, "%d", gasPrice);
 
-
-    if(gasPrice>200){
-        Particle.publish("Turn Red On", String(gasPriceStr), 60, PRIVATE);
+    if(gasPrice>RED_FLASH){
+		nextTimeFlash = millis() + MINS_TILL_FLASH*60*1000;
+        redLightOnFlash();
+    } else if (gasPrice>RED) {
+		nextTimeFlash = millis() + MINS_TILL_FLASH*60*1000;
         redLightOn();
-    } else if (gasPrice>65) {
-        Particle.publish("Turn Yellow On", String(gasPriceStr), 60, PRIVATE);
+    } else if (gasPrice>YELLOW) {
+		nextTimeFlash = millis() + MINS_TILL_FLASH*60*1000;
         yellowLightOn();
-    } else if (gasPrice>0) {
-        Particle.publish("Turn Green On", String(gasPriceStr), 60, PRIVATE);
+    } else if (gasPrice>GREEN) {
+		nextTimeFlash = millis() + MINS_TILL_FLASH*60*1000;
         greenLightOn();
-    } else {
-        Particle.publish("None", String(gasPriceStr), 60, PRIVATE);
+		notifyGreen(gasPriceStr);
+	} else if (gasPrice>GREEN_FLASH) {
+        greenLightOn();
+		shouldFlashGreenLight();
+		notifyGreen(gasPriceStr);
     }
 
+}
+
+void notifyGreen(char* gasPriceStr){
+	if (nextTimeNotify < millis()) {
+		Particle.publish("TurnGreenOn", String(gasPriceStr), 60, PRIVATE);
+		nextTimeNotify = millis() + MINS_TILL_NOTIFY*60*1000;
+	} 
+	return; 
+}
+
+void shouldFlashGreenLight(){
+	if (nextTimeFlash < millis()) {
+		greenLightOnFlash();
+		nextTimeFlash = 0;
+	}
+	return;
 }
 
 /* This function is called once at start up ----------------------------------*/
 void setup()
 {
     Particle.subscribe("hook-response/get-eth-gas-price", myHandler,MY_DEVICES);
-
-	//Setup the Tinker application here
-
 	//Register all the Tinker functions
 	Particle.function("digitalread", tinkerDigitalRead);
 	Particle.function("digitalwrite", tinkerDigitalWrite);
@@ -97,8 +125,6 @@ void setup()
     digitalWrite(redLED, HIGH); 
 }
 
-
-
 /* This function loops forever --------------------------------------------*/
 void loop()
 {
@@ -106,13 +132,10 @@ void loop()
         return;
     }
     Particle.publish("get-eth-gas-price", PRIVATE);
-    nextTime = millis() + 5*60*1000;
-
+    nextTime = millis() + MINS_TILL_CHECK*60*1000;
 }
 
-
 int yellowLightOn(){
-    // Particle.publish("YellowLightOn", "", PRIVATE);
     digitalWrite(yellowLED, LOW);  
     delay(1000);
     digitalWrite(greenLED, HIGH); 
@@ -122,7 +145,6 @@ int yellowLightOn(){
 }
 
 int redLightOn(){
-    // Particle.publish("RedLightOn", "", PRIVATE);
     digitalWrite(yellowLED, HIGH);  
     delay(1000);
     digitalWrite(greenLED, HIGH); 
@@ -131,9 +153,37 @@ int redLightOn(){
     return 1;
 }
 
+int redLightOnFlash(){
+    digitalWrite(yellowLED, HIGH);  
+    delay(1000);
+    digitalWrite(greenLED, HIGH); 
+    delay(1000);
+    digitalWrite(redLED, LOW); 
+    delay(1000);
+    digitalWrite(redLED, HIGH);  
+    delay(3000);
+    digitalWrite(redLED, LOW);  
+    delay(3000);
+    digitalWrite(redLED, HIGH);  
+    delay(3000);
+    digitalWrite(redLED, LOW);  
+    delay(3000);
+    digitalWrite(redLED, HIGH);  
+    delay(3000);
+    digitalWrite(redLED, LOW);  
+    delay(3000);
+    digitalWrite(redLED, HIGH);  
+    delay(3000);
+    digitalWrite(redLED, LOW);  
+    delay(3000);
+    digitalWrite(redLED, HIGH);  
+    delay(3000);
+    digitalWrite(redLED, LOW);  
+ 
+    return 1;
+}
 
 int greenLightOn(){
-    // Particle.publish("GreenLightOn", "", PRIVATE);
     digitalWrite(yellowLED, HIGH);  
     delay(1000);
     digitalWrite(greenLED, LOW);  
@@ -142,6 +192,35 @@ int greenLightOn(){
     return 1;
 }
 
+int greenLightOnFlash(){
+    digitalWrite(yellowLED, HIGH);  
+    delay(1000);
+    digitalWrite(greenLED, LOW);  
+    delay(1000);
+    digitalWrite(redLED, HIGH);  
+    delay(1000);
+    digitalWrite(greenLED, HIGH);  
+    delay(3000);
+    digitalWrite(greenLED, LOW);  
+    delay(3000);
+    digitalWrite(greenLED, HIGH);  
+    delay(3000);
+    digitalWrite(greenLED, LOW);  
+    delay(3000);
+    digitalWrite(greenLED, HIGH);  
+    delay(3000);
+    digitalWrite(greenLED, LOW);  
+    delay(3000);
+    digitalWrite(greenLED, HIGH);  
+    delay(3000);
+    digitalWrite(greenLED, LOW);  
+    delay(3000);
+    digitalWrite(greenLED, HIGH);  
+    delay(3000);
+    digitalWrite(greenLED, LOW);  
+
+    return 1;
+}
 
 /*******************************************************************************
  * Function Name  : tinkerDigitalRead
