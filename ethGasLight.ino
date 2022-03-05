@@ -13,15 +13,15 @@ unsigned int nextTimeNotifyRed = 0;
 unsigned int nextTimeFlashGreen = 0;
 unsigned int nextTimeFlashRed = 0;
 
-int MINS_TILL_CHECK = 10;
+int MINS_TILL_CHECK = 5;
 int MINS_TILL_NOTIFY = 60;
 int MINS_TILL_FLASH = 22;
 
 
 int RED_FLASH = 350;
 int RED = 100;
-int YELLOW = 60;
-int GREEN = 30;
+int YELLOW = 40;
+int GREEN = 25;
 int GREEN_FLASH = 0;
 
 
@@ -83,7 +83,7 @@ void myHandler(const char *event, const char *data) {
 		notifyGreen(gasPriceStr);
 	} else if (gasPrice>GREEN_FLASH) {
 		shouldFlashGreenLight();
-		notifyGreen(gasPriceStr);
+		notifyLowGreen(gasPriceStr);
     }
 
 }
@@ -100,6 +100,14 @@ void notifyRed(char* gasPriceStr){
 void notifyGreen(char* gasPriceStr){
 	if (nextTimeNotify < millis()) {
 		Particle.publish("TurnGreenOn", String(gasPriceStr), 60, PRIVATE);
+		nextTimeNotify = millis() + MINS_TILL_NOTIFY*60*1000;
+	} 
+	return; 
+}
+
+void notifyLowGreen(char* gasPriceStr){
+	if (nextTimeNotify < millis()) {
+		Particle.publish("TurnLowGreenOn", String(gasPriceStr), 60, PRIVATE);
 		nextTimeNotify = millis() + MINS_TILL_NOTIFY*60*1000;
 	} 
 	return; 
