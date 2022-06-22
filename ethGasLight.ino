@@ -13,7 +13,7 @@ unsigned int nextTimeNotifyRed = 0;
 unsigned int nextTimeFlashGreen = 0;
 unsigned int nextTimeFlashRed = 0;
 
-int MINS_TILL_CHECK = 5;
+int MINS_TILL_CHECK = 2;
 int MINS_TILL_NOTIFY = 30;
 int MINS_TILL_FLASH = 22;
 
