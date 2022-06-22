@@ -14,14 +14,15 @@ unsigned int nextTimeFlashGreen = 0;
 unsigned int nextTimeFlashRed = 0;
 
 int MINS_TILL_CHECK = 5;
-int MINS_TILL_NOTIFY = 60;
+int MINS_TILL_NOTIFY = 30;
 int MINS_TILL_FLASH = 22;
 
 
 int RED_FLASH = 350;
-int RED = 100;
-int YELLOW = 40;
-int GREEN = 25;
+int RED = 60;
+// int YELLOW = 25;
+int YELLOW = 25;
+int GREEN = 10;
 int GREEN_FLASH = 0;
 
 
