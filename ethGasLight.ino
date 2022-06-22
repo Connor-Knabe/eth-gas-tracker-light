@@ -13,16 +13,21 @@ unsigned int nextTimeNotifyRed = 0;
 unsigned int nextTimeFlashGreen = 0;
 unsigned int nextTimeFlashRed = 0;
 
+unsigned int redCounter = 0;
+unsigned int greenCounter = 0;
+unsigned int yellowCounter = 0;
+
+
 int MINS_TILL_CHECK = 2;
 int MINS_TILL_NOTIFY = 30;
 int MINS_TILL_FLASH = 22;
 
 
-int RED_FLASH = 350;
-int RED = 60;
+int RED_FLASH = 100;
+int RED = 45;
 // int YELLOW = 25;
 int YELLOW = 25;
-int GREEN = 10;
+int GREEN = 15;
 int GREEN_FLASH = 0;
 
 
@@ -73,20 +78,44 @@ void myHandler(const char *event, const char *data) {
     sprintf(gasPriceStr, "%d", gasPrice);
 
     if(gasPrice>RED_FLASH){
-        redLightOnFlash();
-		notifyRed(gasPriceStr);
+        redCounter = resetAllCounters(redCounter);
+        if(redCounter > 3){
+            redLightOnFlash();
+            notifyRed(gasPriceStr);
+        }
     } else if (gasPrice>RED) {
-        redLightOn();
+        redCounter = resetAllCounters(redCounter);
+        if(redCounter > 3){
+            redLightOn();
+
+        }
     } else if (gasPrice>YELLOW) {
-        yellowLightOn();
+        yellowCounter = resetAllCounters(greenCounter);
+        if(yellowCounter > 3){
+            yellowLightOn();
+
+        }
     } else if (gasPrice>GREEN) {
-        greenLightOn();
-		notifyGreen(gasPriceStr);
+        greenCounter = resetAllCounters(greenCounter);
+        if(greenCounter > 3){
+            greenLightOn();
+            notifyGreen(gasPriceStr);
+        }
 	} else if (gasPrice>GREEN_FLASH) {
-		shouldFlashGreenLight();
-		notifyLowGreen(gasPriceStr);
+        greenCounter = resetAllCounters(greenCounter);
+        if(greenCounter > 3){
+            shouldFlashGreenLight();
+            notifyLowGreen(gasPriceStr);
+        }
     }
 
+}
+
+void resetAllCounters(int* newCount){
+    redCounter = 0;
+    greenCounter = 0;
+    yellowCounter = 0;
+    return newCount;
 }
 
 
