@@ -13,18 +13,14 @@ unsigned int nextTimeNotifyRed = 0;
 unsigned int nextTimeFlashGreen = 0;
 unsigned int nextTimeFlashRed = 0;
 
-unsigned int redCounter = 0;
-unsigned int greenCounter = 0;
-unsigned int yellowCounter = 0;
-
 
 int MINS_TILL_CHECK = 2;
-int MINS_TILL_NOTIFY = 30;
+int MINS_TILL_NOTIFY =  180;
 int MINS_TILL_FLASH = 22;
 
 
-int RED_FLASH = 100;
-int RED = 45;
+int RED_FLASH = 250;
+int RED = 40;
 // int YELLOW = 25;
 int YELLOW = 25;
 int GREEN = 15;
@@ -78,45 +74,21 @@ void myHandler(const char *event, const char *data) {
     sprintf(gasPriceStr, "%d", gasPrice);
 
     if(gasPrice>RED_FLASH){
-        redCounter = resetAllCounters(redCounter);
-        if(redCounter > 3){
-            redLightOnFlash();
-            notifyRed(gasPriceStr);
-        }
+        redLightOnFlash();
+        notifyRed(gasPriceStr);
     } else if (gasPrice>RED) {
-        redCounter = resetAllCounters(redCounter);
-        if(redCounter > 3){
-            redLightOn();
-
-        }
+        redLightOn();
     } else if (gasPrice>YELLOW) {
-        yellowCounter = resetAllCounters(greenCounter);
-        if(yellowCounter > 3){
-            yellowLightOn();
-
-        }
+        yellowLightOn();
     } else if (gasPrice>GREEN) {
-        greenCounter = resetAllCounters(greenCounter);
-        if(greenCounter > 3){
-            greenLightOn();
-            notifyGreen(gasPriceStr);
-        }
+        greenLightOn();
+        notifyGreen(gasPriceStr);
 	} else if (gasPrice>GREEN_FLASH) {
-        greenCounter = resetAllCounters(greenCounter);
-        if(greenCounter > 3){
-            shouldFlashGreenLight();
-            notifyLowGreen(gasPriceStr);
-        }
+        shouldFlashGreenLight();
+        notifyLowGreen(gasPriceStr);
     }
-
 }
 
-void resetAllCounters(int* newCount){
-    redCounter = 0;
-    greenCounter = 0;
-    yellowCounter = 0;
-    return newCount;
-}
 
 
 void notifyRed(char* gasPriceStr){
@@ -170,7 +142,8 @@ void setup()
 	Particle.function("digitalwrite", tinkerDigitalWrite);
 	Particle.function("analogread", tinkerAnalogRead);
 	Particle.function("analogwrite", tinkerAnalogWrite);
-	
+    Particle.publish("EthGasLightOn", "ON", 60, PRIVATE);
+
    	pinMode(greenLED, OUTPUT);
 	pinMode(redLED, OUTPUT);
 	pinMode(yellowLED, OUTPUT);
